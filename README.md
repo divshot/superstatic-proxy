@@ -12,7 +12,7 @@ The configuration for `superstatic-proxy` is an object where the keys are
 reference names for the service to which you're proxying and configuration
 details. An example (comments for clarity despite JSON syntax):
 
-```json
+```js
 {
   "api": {
     // the origin of the server to which you want to make requests

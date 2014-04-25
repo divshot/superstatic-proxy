@@ -50,6 +50,16 @@ describe('Superstatic Proxy', function () {
       .end(done);
   });
   
+  it('proxies a request with the requested method', function (done) {
+    request(app)
+      .post('/__/proxy/api/users.json')
+      .expect(200)
+      .expect(function (data) {
+        expect(data.res.body.method).to.equal('POST');
+      })
+      .end(done);
+  });
+  
   it('skips middleware if proxy is not defined', function (done) {
     var app = connect()
       .use(proxy);

@@ -24,12 +24,13 @@ module.exports = function proxy (req, res, next) {
   
   var requestObject = {
     url: url,
+    method: req.method,
     headers: merge(lowerCaseObjectKeys(config.headers), lowerCaseObjectKeys(req.headers)),
     timeout: requestTimeout(config.timeout)
   };
   
   // Proxy request
-  request.get(requestObject).pipe(res);
+  request(requestObject).pipe(res);
   
   function pathWithoutTaskName () {
     return _.rest(utils.servicePath().split('/')).join('/');

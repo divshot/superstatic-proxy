@@ -163,6 +163,4 @@ describe('Superstatic Proxy', function () {
     });
   });
   
-  it('configures http basic auth credentials');
-  
 });

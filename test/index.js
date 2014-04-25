@@ -13,7 +13,8 @@ var proxySettings = {
     "origin": "http://localhost:" + PORT,
     headers: {
       'Accept': 'application/json'
-    }
+    },
+    timeout: 30
   }
 };
 
@@ -49,7 +50,15 @@ describe('Superstatic Proxy', function () {
       .end(done);
   });
   
-  it('skips middleware if proxy is not defined');
+  it('skips middleware if proxy is not defined', function (done) {
+    var app = connect()
+      .use(proxy);
+    
+    request(app)
+      .get('/__/proxy/api/users.json')
+      .expect(404)
+      .end(done);
+  });
   
   it('passes through the headers', function (done) {
     request(app)
@@ -61,7 +70,7 @@ describe('Superstatic Proxy', function () {
       .end(done);
   });
   
-  it.only('overrides the config headers with any headers sent in the ajax request', function (done) {
+  it('overrides the config headers with any headers sent in the ajax request', function (done) {
     request(app)
       .get('/__/proxy/api/users.json')
       .set('Accept', 'text/html')
@@ -72,6 +81,34 @@ describe('Superstatic Proxy', function () {
       .end(done);
   });
   
-  it('passes through http basic auth credentials');
+  it('configures request body pass through');
+  it('configures cookie pass through');
+  
+  it('configures request timeout', function (done) {
+    var domain = require('domain');
+    var d = domain.create();
+    var app = connect()
+      .use(clone(configSetup))
+      .use(function (req, res, next) {
+        req.config.proxy.api.timeout = 0.001;
+        next();
+      })
+      .use(proxy);
+    
+    d.run(function () {
+      request(app)
+        .get('/__/proxy/api/users.json')
+        .end(function () {
+          throw new Error('Timeout not set or did not timeout');
+        });
+    });
+    
+    d.on('error', function (err) {
+      if (err.code === 'ECONNRESET') done();
+      if (err.message === 'Timeout not set or did not timeout') throw new Error(err.message);
+    });
+  });
+  
+  it('configures http basic auth credentials');
   
 });

@@ -11,7 +11,7 @@ Utils.prototype.serviceName = function () {
 };
 
 Utils.prototype.serviceConfig = function () {
-  return this.req.config[this._name];
+  return (this.req.config) ? this.req.config[this._name] : undefined;
 };
 
 Utils.prototype.requestingService = function () {

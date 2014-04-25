@@ -3,6 +3,7 @@ var _ = require('lodash');
 var merge = require('merge');
 var urlJoin = require('url-join');
 var Utils = require('./superstatic-utils');
+var DEFAULT_TIMEOUT = 3000;
 
 module.exports = function proxy (req, res, next) {
   var utils = new Utils({
@@ -23,7 +24,8 @@ module.exports = function proxy (req, res, next) {
   
   var requestObject = {
     url: url,
-    headers: merge(lowerCaseObjectKeys(config.headers), lowerCaseObjectKeys(req.headers))
+    headers: merge(lowerCaseObjectKeys(config.headers), lowerCaseObjectKeys(req.headers)),
+    timeout: requestTimeout(config.timeout)
   };
   
   // Proxy request
@@ -42,4 +44,9 @@ module.exports = function proxy (req, res, next) {
     
     return lowerCaseObject;
   };
+  
+  function requestTimeout(seconds) {
+    if (!seconds) return DEFAULT_TIMEOUT;
+    return seconds * 100;
+  }
 };

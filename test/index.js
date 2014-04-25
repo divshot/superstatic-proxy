@@ -42,6 +42,16 @@ describe('Superstatic Proxy', function () {
     server.stop(done);
   });
   
+  it('skips middleware if proxy is not defined', function (done) {
+    var app = connect()
+      .use(proxy);
+    
+    request(app)
+      .get('/__/proxy/api/users.json')
+      .expect(404)
+      .end(done);
+  });
+  
   it('proxies a request', function (done) {
     request(app)
       .get('/__/proxy/api/users.json')
@@ -59,16 +69,6 @@ describe('Superstatic Proxy', function () {
       .expect(function (data) {
         expect(data.res.body.method).to.equal('POST');
       })
-      .end(done);
-  });
-  
-  it('skips middleware if proxy is not defined', function (done) {
-    var app = connect()
-      .use(proxy);
-    
-    request(app)
-      .get('/__/proxy/api/users.json')
-      .expect(404)
       .end(done);
   });
   

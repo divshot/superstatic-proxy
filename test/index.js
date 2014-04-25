@@ -6,6 +6,7 @@ var request = require('supertest');
 var connect = require('connect');
 var Mocksy = require('mocksy');
 var clone = require('deap').clone;
+var cookieParser = require('cookie-parser');
 var server = new Mocksy({port: PORT});
 
 var proxySettings = {
@@ -14,7 +15,8 @@ var proxySettings = {
     headers: {
       'Accept': 'application/json'
     },
-    timeout: 30
+    timeout: 30,
+    cookies: true
   }
 };
 
@@ -102,7 +104,39 @@ describe('Superstatic Proxy', function () {
       .end(done);
   });
   
-  it('configures cookie pass through');
+  it('configures cookie pass through', function (done) {
+    var app = connect()
+      .use(configSetup)
+      .use(cookieParser())
+      .use(cookieSetter)
+      .use(proxy);
+      
+    var agent = request.agent(app);
+    
+    agent
+      .get('/set-cookie')
+      .end(function () {
+        setTimeout(function () {
+          agent
+            .get('/__/proxy/api/users.json')
+            .expect(function (data) {
+              expect(data.res.body.cookies).to.eql({cookie1: 'test1', cookie2: 'test2'});
+            })
+            .end(done);
+        }, 0);
+      });
+    
+    function cookieSetter (req, res, next) {
+      if (req.url === '/set-cookie') {
+        res.writeHead(200, [
+          ['Set-Cookie', 'cookie1=test1; Path=/'],
+          ['Set-Cookie', 'cookie2=test2; Path=/']
+        ]);
+        return res.end();
+      }
+      next();
+    }
+  });
   
   it('configures request timeout', function (done) {
     var domain = require('domain');

@@ -3,6 +3,7 @@ var _ = require('lodash');
 var merge = require('merge');
 var urlJoin = require('url-join');
 var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
 var Utils = require('./superstatic-utils');
 var DEFAULT_TIMEOUT = 3000;
 
@@ -14,7 +15,7 @@ module.exports = function proxy (req, res, next) {
   
   if (utils.skipService()) return next();
   
-  parseBody(function () {
+  parser(function () {
     var serviceConfig = utils.serviceConfig();
     
     // Skip if there are not child tasks or if this is only 
@@ -23,7 +24,6 @@ module.exports = function proxy (req, res, next) {
     
     var config = utils.serviceTaskConfig();
     var url = urlJoin(config.origin, pathWithoutTaskName(utils));
-    
     var requestObject = {
       url: url,
       method: req.method,
@@ -31,6 +31,9 @@ module.exports = function proxy (req, res, next) {
       headers: merge(lowerCaseObjectKeys(config.headers), lowerCaseObjectKeys(req.headers)),
       timeout: requestTimeout(config.timeout)
     };
+    
+    // Remove cookies, if config says so
+    if (!config.cookies) delete requestObject.headers.cookie;
     
     // Proxy request
     request(requestObject).pipe(res);
@@ -55,7 +58,9 @@ module.exports = function proxy (req, res, next) {
     return seconds * 100;
   }
   
-  function parseBody (callback) {
-    bodyParser()(req, res, callback);
+  function parser (callback) {
+    bodyParser()(req, res, function () {
+      cookieParser()(req, res, callback);
+    });
   }
 };

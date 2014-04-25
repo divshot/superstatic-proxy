@@ -91,7 +91,17 @@ describe('Superstatic Proxy', function () {
       .end(done);
   });
   
-  it('configures request body pass through');
+  it('configures request body pass through', function (done) {
+    request(app)
+      .post('/__/proxy/api/users.json')
+      .send({key: 'value'})
+      .expect(200)
+      .expect(function (data) {
+        expect(data.res.body.body).to.eql({key: 'value'});
+      })
+      .end(done);
+  });
+  
   it('configures cookie pass through');
   
   it('configures request timeout', function (done) {

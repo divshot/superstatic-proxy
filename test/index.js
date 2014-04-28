@@ -83,6 +83,21 @@ describe('Superstatic Proxy', function () {
       .end(done);
   });
   
+  it('ignores headers in config if there are not any', function (done) {
+    var app = connect()
+      .use(configSetup)
+      .use(function (req, res, next) {
+        delete req.service.config.headers;
+        next();
+      })
+      .use(proxy);
+      
+    request(app)
+      .get('/__/proxy/api/users.json')
+      .expect(200)
+      .end(done);
+  });
+  
   it('overrides the config headers with any headers sent in the ajax request', function (done) {
     request(app)
       .get('/__/proxy/api/users.json')

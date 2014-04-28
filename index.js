@@ -12,7 +12,7 @@ module.exports = function (req, res, next) {
   req.url = req.service.path || req.url; // TODO: test this "OR"
   
   // Set headers
-  Object.keys(config.headers).forEach(function (key) {
+  Object.keys(config.headers || {}).forEach(function (key) {
     req.headers[key.toLowerCase()] = req.headers[key.toLowerCase()] || req.service.config.headers[key];
   });
   

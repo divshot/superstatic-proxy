@@ -3,7 +3,7 @@ var httpProxy = require('http-proxy');
 var proxy = httpProxy.createProxyServer({});
 var DEFAULT_TIMEOUT = 3000;
 
-module.exports = function (req, res, next) {
+var superstaticProxy = function (req, res, next) {
   if (!req.service || !req.service.config) return next();
   
   var config = req.service.config;
@@ -28,3 +28,5 @@ module.exports = function (req, res, next) {
     timeout: config.timeout || DEFAULT_TIMEOUT
   });
 };
+
+module.exports = superstaticProxy;

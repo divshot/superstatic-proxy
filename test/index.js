@@ -33,7 +33,7 @@ describe('Superstatic Proxy', function () {
   beforeEach(function (done) {
     app = connect()
       .use(clone(configSetup))
-      .use(proxy);
+      .use(proxy());
       
     server.start(done);
   });
@@ -44,7 +44,7 @@ describe('Superstatic Proxy', function () {
   
   it('skips middleware if config is not defined', function (done) {
     var app = connect()
-      .use(proxy);
+      .use(proxy());
     
     request(app)
       .get('/__/proxy/api/users.json')
@@ -90,7 +90,7 @@ describe('Superstatic Proxy', function () {
         delete req.service.config.headers;
         next();
       })
-      .use(proxy);
+      .use(proxy());
       
     request(app)
       .get('/__/proxy/api/users.json')
@@ -129,7 +129,7 @@ describe('Superstatic Proxy', function () {
       })
       .use(cookieParser())
       .use(cookieSetter)
-      .use(proxy);
+      .use(proxy());
       
     var agent = request.agent(app);
     
@@ -163,7 +163,7 @@ describe('Superstatic Proxy', function () {
       .use(configSetup)
       .use(cookieParser())
       .use(cookieSetter)
-      .use(proxy);
+      .use(proxy());
       
     var agent = request.agent(app);
     
@@ -201,7 +201,7 @@ describe('Superstatic Proxy', function () {
         req.service.config.timeout = 0.001;
         next();
       })
-      .use(proxy);
+      .use(proxy());
     
     d.run(function () {
       request(app)

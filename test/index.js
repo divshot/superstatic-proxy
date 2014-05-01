@@ -120,7 +120,7 @@ describe('Superstatic Proxy', function () {
       .end(done);
   });
   
-  it('configures cookie pass through', function (done) {
+  it('strips the cookies if config cookies equal false', function (done) {
     var app = connect()
       .use(configSetup)
       .use(function (req, res, next) {
@@ -140,7 +140,7 @@ describe('Superstatic Proxy', function () {
           agent
             .get('/__/proxy/api/users.json')
             .expect(function (data) {
-              expect(data.res.body.cookies).to.eql({});
+              expect(data.res.body.headers.cookie).to.equal(undefined);
             })
             .end(done);
         }, 0);
@@ -158,7 +158,7 @@ describe('Superstatic Proxy', function () {
     }
   });
   
-  it('strips the cookies if config cookies equal false', function (done) {
+  it('configures cookie pass through', function (done) {
     var app = connect()
       .use(configSetup)
       .use(cookieParser())
@@ -174,7 +174,7 @@ describe('Superstatic Proxy', function () {
           agent
             .get('/__/proxy/api/users.json')
             .expect(function (data) {
-              expect(data.res.body.cookies).to.eql({cookie1: 'test1', cookie2: 'test2'});
+              expect(data.res.body.headers.cookie).to.eql('cookie1=test1;cookie2=test2');
             })
             .end(done);
         }, 0);

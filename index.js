@@ -1,4 +1,3 @@
-var map = require('lodash.map');
 var httpProxy = require('http-proxy');
 var proxy = httpProxy.createProxyServer({});
 var DEFAULT_TIMEOUT = 3000;
@@ -18,6 +17,7 @@ var superstaticProxy = function (req, res, next) {
       req.headers[key.toLowerCase()] =
         (req.headers[key.toLowerCase()] || req.service.config.headers[key]);
     });
+  
   
   // Set or unset cookies
   if (config.cookies === false) delete req.headers.cookie;

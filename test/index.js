@@ -10,17 +10,7 @@ var cookieParser = require('cookie-parser');
 var server = new Mocksy({port: PORT});
 
 var proxySettings = {
-  origin: "http://localhost:" + PORT,
-  headers: {
-    'Accept': 'application/json'
-  },
-  timeout: 30,
-  cookies: true
-};
-
-/*
-var proxySettings = {
-  task: {
+  api: {
     origin: "http://localhost:" + PORT,
     headers: {
       'Accept': 'application/json'
@@ -29,14 +19,13 @@ var proxySettings = {
     cookies: true
   }
 };
- */
 
 var configSetup = function (req, res, next) {
   req.service = {
     config: clone(proxySettings)
   };
   
-  req.service.path = req.url.replace('/__/proxy/api', '');
+  req.service.path = req.url.replace('/__', '');
   next();
 };
 
@@ -137,7 +126,7 @@ describe('Superstatic Proxy', function () {
     var app = connect()
       .use(configSetup)
       .use(function (req, res, next) {
-        req.service.config.cookies = false;
+        req.service.config.api.cookies = false;
         next();
       })
       .use(cookieParser())
@@ -211,7 +200,7 @@ describe('Superstatic Proxy', function () {
     var app = connect()
       .use(clone(configSetup))
       .use(function (req, res, next) {
-        req.service.config.timeout = 0.001;
+        req.service.config.api.timeout = 0.001;
         next();
       })
       .use(proxy());

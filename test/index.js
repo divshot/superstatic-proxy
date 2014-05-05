@@ -18,6 +18,19 @@ var proxySettings = {
   cookies: true
 };
 
+/*
+var proxySettings = {
+  task: {
+    origin: "http://localhost:" + PORT,
+    headers: {
+      'Accept': 'application/json'
+    },
+    timeout: 30,
+    cookies: true
+  }
+};
+ */
+
 var configSetup = function (req, res, next) {
   req.service = {
     config: clone(proxySettings)

@@ -1,4 +1,5 @@
 var httpProxy = require('http-proxy');
+var _ = require('lodash');
 var proxy = httpProxy.createProxyServer({});
 var DEFAULT_TIMEOUT = 3000;
 
@@ -12,13 +13,10 @@ module.exports = function () {
     req.url = req.service.path || req.url; // TODO: test this "OR"
     
     // Set headers
-    Object
-      .keys(config.headers || {})
-      .forEach(function (key) {
-        req.headers[key.toLowerCase()] =
-          (req.headers[key.toLowerCase()] || req.service.config.headers[key]);
-      });
-    
+    _.each(config.headers, function (val, key) {
+      req.headers[key.toLowerCase()] =
+        (req.headers[key.toLowerCase()] || req.service.config.headers[key]);
+    });
     
     // Set or unset cookies
     if (config.cookies === false) delete req.headers.cookie;

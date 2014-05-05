@@ -36,6 +36,7 @@
     "cookie-parser": "~1.0.1"
   },
   "dependencies": {
-    "http-proxy": "~1.1.2"
+    "http-proxy": "~1.1.2",
+    "lodash": "^2.4.1"
   }
 }

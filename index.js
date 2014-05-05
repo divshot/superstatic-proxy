@@ -8,11 +8,12 @@ module.exports = function () {
   return function (req, res, next) {
     if (!req.service || !req.service.config) return next();
     
-    // var config = req.service.config;
     var requestUrlValues = (req.service.path || req.url).split('/');
     var proxyName = requestUrlValues[2];
-    var config = req.service.config[proxyName];
+    var config = getEndpointConfig(proxyName); // TODO: this should be case-insensitive
     var endpointUri = _.rest(requestUrlValues, 3).join('/');
+    
+    if (!config) return next();
     
     // Set headers
     _.each(config.headers, function (val, key) {
@@ -31,5 +32,10 @@ module.exports = function () {
       target: config.origin,
       timeout: config.timeout || DEFAULT_TIMEOUT
     });
+    
+    function getEndpointConfig (name) {
+      return req.service.config[name] || req.service.config[name.toLowerCase()]
+    }
   };
+  
 };

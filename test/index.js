@@ -54,8 +54,18 @@ describe('Superstatic Proxy', function () {
       .end(done);
   });
   
-  it('proxies a request', function (done) {
+  it('skips the middleware if the endpiont name is not in the configuration', function (done) {
+    var app = connect()
+      .use(clone(configSetup))
+      .use(proxy());
     
+    request(app)
+      .get('/__/proxy/not/users.json')
+      .expect(404)
+      .end(done);
+  });
+  
+  it('proxies a request', function (done) {
     request(app)
       .get('/__/proxy/api/users.json')
       .expect(200)
@@ -68,6 +78,16 @@ describe('Superstatic Proxy', function () {
   it('proxies a request with the requested method', function (done) {
     request(app)
       .post('/__/proxy/api/users.json')
+      .expect(200)
+      .expect(function (data) {
+        expect(data.res.body.method).to.equal('POST');
+      })
+      .end(done);
+  });
+  
+  it('proxies a request, ignoring the proxy name case', function (done) {
+    request(app)
+      .post('/__/proxy/Api/users.json')
       .expect(200)
       .expect(function (data) {
         expect(data.res.body.method).to.equal('POST');

@@ -27,11 +27,15 @@ module.exports = function () {
     // Set relative path
     req.url = path.join('/', endpointUri);
     
+    // Remove request origin
+    delete req.headers.host;
+    
     // Send proxy
     proxy.web(req, res, {
       target: config.origin,
       timeout: config.timeout || DEFAULT_TIMEOUT
     });
+    
     
     function getEndpointConfig (name) {
       return req.service.config[name] || req.service.config[name.toLowerCase()]

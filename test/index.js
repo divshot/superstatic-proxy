@@ -95,6 +95,16 @@ describe('Superstatic Proxy', function () {
       .end(done);
   });
   
+  it('removes the host/origin from the original request', function (done) {
+    request(app)
+      .get('/__/proxy/api/users.json')
+      .set('host', 'http://localhost')
+      .expect(function (data) {
+        expect(data.body.headers.host).to.not.equal('http://localhost');
+      })
+      .end(done);
+  });
+  
   it('passes through the headers', function (done) {
     request(app)
       .get('/__/proxy/api/users.json')

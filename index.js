@@ -1,16 +1,19 @@
-var path = require('path');
-var httpProxy = require('http-proxy');
 var _ = require('lodash');
-var proxy = httpProxy.createProxyServer({});
-var DEFAULT_TIMEOUT = 3000;
+var request = require('request');
+var join = require('join-path');
+var stacked = require('stacked');
+var bodyParser = require('body-parser');
+
+var DEFAULT_TIMEOUT = 30000;
 
 module.exports = function () {
   return function (req, res, next) {
     if (!req.service || !req.service.config) return next();
     
+    var stack = stacked();
     var requestUrlValues = (req.service.path || req.url).split('/');
     var proxyName = requestUrlValues[2];
-    var config = getEndpointConfig(proxyName); // TODO: this should be case-insensitive
+    var config = getEndpointConfig(proxyName);
     var endpointUri = _.rest(requestUrlValues, 3).join('/');
     
     if (!config) return next();
@@ -25,17 +28,31 @@ module.exports = function () {
     if (config.cookies === false) delete req.headers.cookie;
     
     // Set relative path
-    req.url = path.join('/', endpointUri);
+    req.url = join('/', endpointUri);
     
     // Remove request origin
     delete req.headers.host;
     
-    // Send proxy
-    proxy.web(req, res, {
-      target: config.origin,
-      timeout: config.timeout || DEFAULT_TIMEOUT
+    stack.use(bodyParser.json());
+    stack.use(bodyParser.raw());
+    stack.use(bodyParser.text());
+    stack.use(bodyParser.urlencoded({extended: true}));
+    stack.use(function (req, res, next) {
+      
+      var options = {
+        url: join(config.origin, req.url),
+        method: req.method,
+        tunnel: true,
+        headers: req.headers,
+        timeout: (config.timeout)*1000 || DEFAULT_TIMEOUT
+      };
+      
+      if (req.body) options.body = JSON.stringify(req.body);
+      
+      request(options).pipe(res);
     });
     
+    stack(req, res, next);
     
     function getEndpointConfig (name) {
       return req.service.config[name] || req.service.config[name.toLowerCase()]

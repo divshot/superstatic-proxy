@@ -32,6 +32,8 @@ module.exports = function () {
     
     // Remove request origin
     delete req.headers.host;
+    delete req.headers.origin; // TODO: test this
+    delete req.headers.referer; // TODO: test this
     
     stack.use(bodyParser.json());
     stack.use(bodyParser.raw());
@@ -47,7 +49,15 @@ module.exports = function () {
         timeout: (config.timeout)*1000 || DEFAULT_TIMEOUT
       };
       
-      if (req.body) options.body = JSON.stringify(req.body);
+      if (req.body && Object.keys(req.body).length > 0)  {
+        try {
+          var body = JSON.parse(req.body);
+          options.json = true;
+        }
+        catch (e) {}
+        
+        options.body = JSON.stringify(req.body);
+      }
       
       request(options).pipe(res);
     });

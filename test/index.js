@@ -85,6 +85,17 @@ describe('Superstatic Proxy', function () {
       .end(done);
   });
   
+  it('proxies a DELETE request', function (done) {
+    
+    request(app)
+      .delete('/__/proxy/api/users.json')
+      .expect(200)
+      .expect(function (data) {
+        expect(data.res.body.method).to.equal('DELETE');
+      })
+      .end(done);
+  });
+  
   it('proxies a request, ignoring the proxy name case', function (done) {
     request(app)
       .post('/__/proxy/Api/users.json')

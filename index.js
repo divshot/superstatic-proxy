@@ -51,12 +51,18 @@ module.exports = function () {
       
       if (req.body && Object.keys(req.body).length > 0)  {
         try {
-          var body = JSON.parse(req.body);
-          options.json = true;
+          options.json = JSON.parse(req.body);
         }
         catch (e) {}
-        
-        options.body = JSON.stringify(req.body);
+      }
+      
+      if (req.body && !options.json) {
+        try {
+          options.body = JSON.stringify(req.body);
+        }
+        catch (e) {
+          options.body = req.body
+        }
       }
       
       request(options).pipe(res);

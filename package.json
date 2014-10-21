@@ -1,6 +1,6 @@
 {
   "name": "superstatic-proxy",
-  "version": "1.0.3-rc4",
+  "version": "2.0.0",
   "description": "A Superstatic service for HTTP proxying of AJAX requests",
   "main": "index.js",
   "directories": {
@@ -36,10 +36,8 @@
     "cookie-parser": "~1.0.1"
   },
   "dependencies": {
-    "body-parser": "^1.9.0",
+    "http-proxy": "^1.5.3",
     "join-path": "^1.0.0",
-    "lodash": "^2.4.1",
-    "request": "^2.45.0",
-    "stacked": "^1.1.0"
+    "lodash": "^2.4.1"
   }
 }

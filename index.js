@@ -1,6 +1,9 @@
 var _ = require('lodash');
 var join = require('join-path');
 var httpProxy = require('http-proxy');
+var http = require('http');
+var https = require('https');
+var url = require('fast-url-parser');
 
 var DEFAULT_TIMEOUT = 30000;
 
@@ -16,7 +19,7 @@ module.exports = function () {
     var proxyName = requestUrlValues[2];
     var config = getEndpointConfig(proxyName);
     
-    if (!config) return next();
+    if (!config || !config.origin) return next();
     
     var endpointUri = _.rest(requestUrlValues, 3).join('/');
     
@@ -37,13 +40,30 @@ module.exports = function () {
     delete req.headers.origin; // TODO: test this
     delete req.headers.referer; // TODO: test this
     
-    proxy.web(req, res, {
-      target: config.origin,
-      timeout: config.timeout || DEFAULT_TIMEOUT
-    });
+    proxy.web(req, res, proxyConfig());
     
     function getEndpointConfig (name) {
+      
       return req.service.config[name] || req.service.config[name.toLowerCase()]
+    }
+    
+    function proxyConfig () {
+      
+      // Set up proxy agent
+      var proxyAgent = http;
+      var _proxyConfig = {
+        target: config.origin,
+        timeout: config.timeout || DEFAULT_TIMEOUT
+      };
+      try {
+        var parsed = url.parse(config.origin);
+        agent = (parsed.protocol === 'https') ? https : http;
+      }
+      catch (e) {}
+      
+      _proxyConfig.agent = agent.globalAgent;
+      
+      return _proxyConfig;
     }
   };
   

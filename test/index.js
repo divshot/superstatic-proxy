@@ -44,6 +44,16 @@ describe('Superstatic Proxy', function () {
     server.stop(done);
   });
   
+  // it.only('test', function (done) {
+  //   request(app)
+  //     .get('/__/proxy/api/users.json')
+  //     .expect(200)
+  //     .expect(function (data) {
+  //       expect(data.res.body.url).to.equal('/users.json');
+  //     })
+  //     .end(done);
+  // });
+  
   it('skips middleware if config is not defined', function (done) {
     var app = connect()
       .use(proxy());

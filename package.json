@@ -1,6 +1,6 @@
 {
   "name": "superstatic-proxy",
-  "version": "1.0.2",
+  "version": "1.0.3-rc4",
   "description": "A Superstatic service for HTTP proxying of AJAX requests",
   "main": "index.js",
   "directories": {

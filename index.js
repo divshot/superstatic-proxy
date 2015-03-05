@@ -1,11 +1,13 @@
-var _ = require('lodash');
-var join = require('join-path');
-var httpProxy = require('http-proxy');
 var http = require('http');
 var https = require('https');
+
+var join = require('join-path');
+var httpProxy = require('http-proxy');
 var url = require('fast-url-parser');
 
-var PROXY = httpProxy.createProxyServer();
+var PROXY = httpProxy.createProxyServer({
+  changeOrigin: true
+});
 var DEFAULT_TIMEOUT = 30000;
 
 module.exports = function () {
@@ -20,10 +22,12 @@ module.exports = function () {
     
     if (!config || !config.origin) return next();
     
-    var endpointUri = _.rest(requestUrlValues, 3).join('/');
+    var endpointUri = requestUrlValues.slice(3).join('/');
     
     // Set headers
-    _.each(config.headers, function (val, key) {
+    Object.keys(config.headers || {}).forEach(function (key) {
+      
+      var val = config.headers[key];
       
       req.headers[key.toLowerCase()] =
         (req.headers[key.toLowerCase()] || config.headers[key]);
@@ -33,11 +37,6 @@ module.exports = function () {
     
     // Set relative path
     req.url = join('/', endpointUri);
-    
-    // Remove request origin
-    delete req.headers.host;
-    delete req.headers.origin; // TODO: test this
-    delete req.headers.referer; // TODO: test this
     
     PROXY.web(req, res, proxyConfig());
     

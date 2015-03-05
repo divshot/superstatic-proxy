@@ -80,6 +80,7 @@ describe('Superstatic Proxy', function () {
       .get('/__/proxy/api/users.json')
       .expect(200)
       .expect(function (data) {
+        
         expect(data.res.body.url).to.equal('/users.json');
       })
       .end(done);
@@ -140,7 +141,22 @@ describe('Superstatic Proxy', function () {
     var app = connect()
       .use(configSetup)
       .use(function (req, res, next) {
-        delete req.service.config.headers;
+        next();
+      })
+      .use(proxy());
+      
+    request(app)
+      .get('/__/proxy/api/users.json')
+      .expect(200)
+      .end(done);
+  });
+  
+  it('proxies a request with no config headers', function (done) {
+    
+    var app = connect()
+      .use(configSetup)
+      .use(function (req, res, next) {
+        delete req.service.config.api.headers;
         next();
       })
       .use(proxy());
@@ -235,10 +251,10 @@ describe('Superstatic Proxy', function () {
     
     function cookieSetter (req, res, next) {
       if (req.url === '/set-cookie') {
-        res.writeHead(200, [
-          ['Set-Cookie', 'cookie1=test1; Path=/'],
-          ['Set-Cookie', 'cookie2=test2; Path=/']
-        ]);
+        
+        res.setHeader('Set-Cookie','cookie1=test1; Path=/');
+        res.setHeader('Set-Cookie','cookie2=test2; Path=/');
+        
         return res.end();
       }
       next();

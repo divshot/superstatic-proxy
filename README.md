@@ -1,4 +1,4 @@
-# Superstatic Proxy Service
+# Superstatic Proxy Service [![Travis](https://img.shields.io/travis/divshot/superstatic-proxy.svg?style=flat-square)]()
 
 The Superstatic AJAX proxy lets you make requests to other domians without
 violating the Same-Origin Policy. For instance, you could mount a proxy
